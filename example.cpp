@@ -27,6 +27,7 @@
 //#endif
 //#pragma comment(lib, "opengl32.lib")
 //
+#define TINYEXR_IMPLEMENTATION
 #include "ImFileDialog.h"
 //
 //// SDL defines main
@@ -162,7 +163,7 @@ int main(int argc, char* argv[])
 		// Simple window
 		ImGui::Begin("Control Panel");
 		if (ImGui::Button("Open file"))
-			ifd::FileDialog::Instance().Open("ShaderOpenDialog", "Open a shader", "Image file (*.png;*.jpg;*.jpeg;*.bmp;*.tga){.png,.jpg,.jpeg,.bmp,.tga},.*", true);
+			ifd::FileDialog::Instance().Open("ShaderOpenDialog", "Open a shader", "Image file (*.png;*.jpg;*.jpeg;*.bmp;*.tga){.png,.jpg,.jpeg,.bmp,.tga,.exr},.*", true);
 		if (ImGui::Button("Open directory"))
 			ifd::FileDialog::Instance().Open("DirectoryOpenDialog", "Open a directory", "");
 		if (ImGui::Button("Save file"))

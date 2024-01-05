@@ -1,6 +1,9 @@
 #if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_WARNINGS)
 #define _CRT_SECURE_NO_WARNINGS
 #endif
+
+#define NOMINMAX
+
 #include "ImFileDialog.h"
 
 #include <fstream>
@@ -23,7 +26,6 @@
 #include <pwd.h>
 #endif
 
-#define TINYEXR_IMPLEMENTATION
 #include <tinyexr.h>
 
 #define ICON_SIZE ImGui::GetFont()->FontSize + 3
