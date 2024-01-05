@@ -45,7 +45,7 @@ static void glfw_error_callback(int error, const char* description)
 int main(int argc, char* argv[])
 {
 	bool run = true;
-	srand(time(NULL));
+	srand((unsigned int)(time(NULL)));
 	
 	glfwSetErrorCallback(glfw_error_callback);
 	if (!glfwInit())
@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
 		//glGenerateMipmap(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		return (void*)tex;
+		return (void*)(std::uintptr_t)tex;
 	};
 	ifd::FileDialog::Instance().DeleteTexture = [](void* tex) {
 		GLuint texID = (GLuint)((uintptr_t)tex);

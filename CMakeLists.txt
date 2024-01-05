@@ -17,6 +17,7 @@ set(SOURCES
 	extern/tinyexr/deps/miniz/miniz.c
 )
 
+include_directories(.)
 include_directories(extern)
 include_directories(extern/imgui)
 include_directories(extern/stb)

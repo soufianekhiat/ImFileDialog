@@ -2,9 +2,11 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 
-#include "ImFileDialog.h"
+#include <ImFileDialog.h>
 
 #include <fstream>
 #include <algorithm>
@@ -14,7 +16,7 @@
 #include <imgui/imgui_internal.h>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include <stb_image.h>
 
 #ifdef _WIN32
 #include <windows.h>
