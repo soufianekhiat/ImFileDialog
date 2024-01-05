@@ -47,7 +47,7 @@ namespace ifd {
 		}
 		inline float GetZoom() { return m_zoom; }
 
-		std::function<void*(uint8_t*, int, int, char)> CreateTexture; // char -> fmt -> { 0 = BGRA, 1 = RGBA }
+		std::function<void*(uint8_t*, int, int, char, int, bool)> CreateTexture; // char -> fmt -> { 0 = BGRA, 1 = RGBA }
 		std::function<void(void*)> DeleteTexture;
 
 		class FileTreeNode {
@@ -72,15 +72,19 @@ namespace ifd {
 		public:
 			FileData(const std::filesystem::path& path);
 
-			std::filesystem::path Path;
-			bool IsDirectory;
 			size_t Size;
-			time_t DateModified;
+			int IconPreviewWidth, IconPreviewHeight;
+			int Channels;
 
-			bool HasIconPreview;
 			void* IconPreview;
 			uint8_t* IconPreviewData;
-			int IconPreviewWidth, IconPreviewHeight;
+
+			std::filesystem::path Path;
+			time_t DateModified;
+
+			bool IsFloat;
+			bool HasIconPreview;
+			bool IsDirectory;
 		};
 
 	private:

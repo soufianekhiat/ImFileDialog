@@ -23,8 +23,11 @@
 #include <pwd.h>
 #endif
 
+#define TINYEXR_IMPLEMENTATION
+#include <tinyexr.h>
+
 #define ICON_SIZE ImGui::GetFont()->FontSize + 3
-#define GUI_ELEMENT_SIZE std::max(GImGui->FontSize + 10.f, 24.f)
+#define GUI_ELEMENT_SIZE ImMax(GImGui->FontSize + 10.f, 24.f)
 #define DEFAULT_ICON_SIZE 32
 #define PI 3.141592f
 
@@ -756,7 +759,7 @@ namespace ifd {
 		uint8_t* data = (uint8_t*)malloc(byteSize);
 		GetBitmapBits(iconInfo.hbmColor, byteSize, data);
 
-		m_icons[pathU8] = this->CreateTexture(data, ds.dsBm.bmWidth, ds.dsBm.bmHeight, 0);
+		m_icons[pathU8] = this->CreateTexture(data, ds.dsBm.bmWidth, ds.dsBm.bmHeight, 0, 4, false);
 
 		free(data);
 
@@ -884,7 +887,17 @@ namespace ifd {
 
 			if (data.Path.has_extension()) {
 				std::string ext = data.Path.extension().u8string();
-				if (ext == ".png" || ext == ".jpg" || ext == ".jpeg" || ext == ".bmp" || ext == ".tga") {
+				if (ext == ".png" ||
+					ext == ".jpg" ||
+					ext == ".jpeg" ||
+					ext == ".bmp" ||
+					ext == ".gif" ||
+					ext == ".hdr" ||
+					ext == ".pic" ||
+					ext == ".pnm" ||
+					ext == ".jpe" ||
+					ext == ".tga")
+				{
 					int width, height, nrChannels;
 					unsigned char* image = stbi_load(data.Path.u8string().c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
 
@@ -895,6 +908,33 @@ namespace ifd {
 					data.IconPreviewData = image;
 					data.IconPreviewWidth = width;
 					data.IconPreviewHeight = height;
+					data.Channels = 4;
+					data.IsFloat = false;
+				}
+				else if (ext == ".exr")
+				{
+					int width;
+					int height;
+					float* out;
+					const char* err = nullptr;
+					int ret = LoadEXR(&out, &width, &height, data.Path.u8string().c_str(), &err);
+
+					if (ret != TINYEXR_SUCCESS || out == nullptr || width == 0 || height == 0)
+					{
+						continue;
+					}
+					else
+					{
+						if (err)
+							FreeEXRErrorMessage(err);
+					}
+
+					data.HasIconPreview = true;
+					data.IconPreviewData = reinterpret_cast< uint8_t* >( out );
+					data.IconPreviewWidth = width;
+					data.IconPreviewHeight = height;
+					data.Channels = 4;
+					data.IsFloat = true;
 				}
 			}
 		}
@@ -1099,15 +1139,15 @@ namespace ifd {
 				ImGui::TableSetupColumn("Name##filename", ImGuiTableColumnFlags_WidthStretch, 0.0f -1.0f, 0);
 				ImGui::TableSetupColumn("Date modified##filedate", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 0.0f, 1);
 				ImGui::TableSetupColumn("Size##filesize", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 0.0f, 2);
-                ImGui::TableSetupScrollFreeze(0, 1);
+				ImGui::TableSetupScrollFreeze(0, 1);
 				ImGui::TableHeadersRow();
 
 				// sort
 				if (ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs()) {
-                    if (sortSpecs->SpecsDirty) {
+					if (sortSpecs->SpecsDirty) {
 						sortSpecs->SpecsDirty = false;
 						m_sortContent(sortSpecs->Specs->ColumnUserID, sortSpecs->Specs->SortDirection);
-                    }
+					}
 				}
 
 				// content
@@ -1165,7 +1205,7 @@ namespace ifd {
 			int fileId = 0;
 			for (auto& entry : m_content) {
 				if (entry.HasIconPreview && entry.IconPreviewData != nullptr) {
-					entry.IconPreview = this->CreateTexture(entry.IconPreviewData, entry.IconPreviewWidth, entry.IconPreviewHeight, 1);
+					entry.IconPreview = this->CreateTexture(entry.IconPreviewData, entry.IconPreviewWidth, entry.IconPreviewHeight, 1, entry.Channels, entry.IsFloat);
 					stbi_image_free(entry.IconPreviewData);
 					entry.IconPreviewData = nullptr;
 				}
@@ -1406,9 +1446,8 @@ namespace ifd {
 				m_finalize();
 		}
 
-		int escapeKey = ImGui::GetIO().KeyMap[ImGuiKey_Escape];
 		if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) &&
-			 escapeKey >= 0 && ImGui::IsKeyPressed(escapeKey))
+			ImGui::IsKeyPressed(ImGuiKey_Escape))
 			m_isOpen = false;
 	}
 }
