@@ -912,7 +912,7 @@ namespace ifd {
 					data.IconPreviewData = image;
 					data.IconPreviewWidth = width;
 					data.IconPreviewHeight = height;
-					data.Channels = 4;
+					data.Channels = nrChannels;
 					data.IsFloat = false;
 				}
 				else if (ext == ".exr")
